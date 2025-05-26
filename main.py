@@ -37,6 +37,19 @@ def retrieve_phone_code(driver) -> str:
 class UrbanRoutesPage:
     from_field = (By.ID, 'from')
     to_field = (By.ID, 'to')
+    comfort_tariff_button = (By.CLASS_NAME, 'tariff-card_comfort')
+    phone_field = (By.ID, 'phone')
+    add_card_button = (By.CLASS_NAME, 'payment-method__add-button')
+    card_number_field = (By.ID, 'number')
+    card_expiration_date_field = (By.ID, 'exp')
+    card_cvv_field = (By.ID, 'code')
+    link_card_button = (By.CLASS_NAME, 'modal__button')
+    message_field = (By.ID, 'comment')
+    blanket_checkbox = (By.ID, 'blanket')
+    tissues_checkbox = (By.ID, 'towels')
+    ice_cream_field = (By.ID, 'ice-cream')
+    modal_searching_taxi = (By.CLASS_NAME, 'search-form__modal')
+    driver_info = (By.CLASS_NAME, 'order-card')
 
     def __init__(self, driver):
         self.driver = driver
@@ -53,7 +66,46 @@ class UrbanRoutesPage:
     def get_to(self):
         return self.driver.find_element(*self.to_field).get_property('value')
 
+    def select_comfort_tariff(self):
+        self.driver.find_element(*self.comfort_tariff_button).click()
 
+    def set_route(self, from_address, to_address):
+        self.set_from(from_address)
+        self.set_to(to_address)
+
+    def enter_phone_number(self, phone):
+        self.driver.find_element(*self.phone_field).send_keys(phone)
+
+    def add_card(self, number, expiry, cvv):
+        self.driver.find_element(*self.add_card_button).click()
+        self.driver.find_element(*self.card_number_field).send_keys(number)
+        self.driver.find_element(*self.card_expiration_date_field).send_keys(expiry)
+        cvv_input = self.driver.find_element(*self.card_cvv_field)
+        cvv_input.send_keys(cvv)
+
+        # Cambio de enfoque
+        self.driver.find_element(*self.card_number_field).click()
+        self.driver.find_element(*self.link_card_button).click()
+
+    def leave_message_for_driver(self, message):
+        self.driver.find_element(*self.message_field).send_keys(message)
+
+    def request_blanket_and_tissues(self):
+        self.driver.find_element(*self.blanket_checkbox).click()
+        self.driver.find_element(*self.tissues_checkbox).click()
+
+    def order_ice_cream(self, quantity):
+        self.driver.find_element(*self.ice_cream_field).send_keys(str(quantity))
+
+    def wait_for_search_modal(self):
+        WebDriverWait(self.driver, 5).until(
+            expected_conditions.visibility_of_element_located(self.modal_searching_taxi)
+        )
+
+    def wait_for_driver_info(self):
+        WebDriverWait(self.driver, 10).until(
+            expected_conditions.visibility_of_element_located(self.driver_info)
+        )
 
 class TestUrbanRoutes:
 
@@ -76,6 +128,36 @@ class TestUrbanRoutes:
         assert routes_page.get_from() == address_from
         assert routes_page.get_to() == address_to
 
+    def test_add_card(self):
+        self.driver.get(data.urban_routes_url)
+        routes_page = UrbanRoutesPage(self.driver)
+
+        # 1. Ingresar direcciones
+        routes_page.set_route(data.address_from, data.address_to)
+
+        # 2. Seleccionar tarifa Comfort
+        routes_page.select_comfort_tariff()
+
+        # 3. Ingresar teléfono
+        routes_page.enter_phone_number(data.phone_number)
+
+        # 4. Agregar tdc
+        routes_page.add_card(data.card_number, '12/25', data.card_code)
+
+        # 5. Dejar mensaje para el conductor
+        routes_page.leave_message_for_driver(data.message_for_driver)
+
+        # 6. Pedir manta y pañuelos
+        routes_page.request_blanket_and_tissues()
+
+        # 7. Pedir 2 helados
+        routes_page.order_ice_cream(2)
+
+        # 8. Esperar modal de búsqueda de taxi
+        routes_page.wait_for_search_modal()
+
+        # 9. Esperar info del conductor (opcional)
+        routes_page.wait_for_driver_info()
 
     @classmethod
     def teardown_class(cls):
