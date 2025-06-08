@@ -65,11 +65,9 @@ Durante el desarrollo de este proyecto se presentaron incompatibilidades entre e
 
 ---
 
-## Notas finales: Ejecución de pruebas
+## Notas finales: Errores persisten a pesar de los cambios 
 
-- Debido a los conflictos de versiones mencionados anteriormente, no logré ejecutar el código con éxito en mi entorno local utilizando Selenium, a pesar de varios intentos y cambios siguiendo las lecciones, y otras fuentes como YouTube o Chat GPT.
-- Dicho esto, espero que el código sea revisado por los tutores o evaluadores y me indiquen las correcciones.
-
+- He realizado todos los ajustes sugeridos por el revisor, desde compatibilidad hasta mejora de selectores, usando Keys.ENTER, ajustes en setup_class, WebDriverWait, etc., con la ayuda de Chat GPT; sin embargo, siguen fallando 8 pruebas, aparentemente por tiempos de carga o comportamiento inconsistente de la aplicación. Si es posible, agradecería una revisión orientada a entender qué está impidiendo que estas pruebas se ejecuten correctamente, ya que no hay errores de sintaxis ni uso incorrecto de Selenium y yo ya no sé qué más hacer ni puedo seguir invirtiendo más tiempo en esto hasta no saber qué está sucediendo.
 ---
 
 ¡Gracias por revisar este proyecto!
